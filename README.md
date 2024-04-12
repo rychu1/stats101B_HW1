@@ -1,2 +1,4 @@
 # stats101B_HW1
-Test for R
+
+
+Trying to take laptop R assignment and access from other device
