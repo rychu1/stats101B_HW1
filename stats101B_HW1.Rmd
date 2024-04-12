@@ -1,0 +1,154 @@
+---
+title: "stats101B_HW1"
+author: "Ryan Chu"
+date: "2024-04-05"
+output: pdf_document
+---
+
+```{r, include = FALSE}
+library(ggplot2)
+library(ggfortify)
+library(dplyr)
+```
+#Q1
+
+## 1.
+
+```{r, include = FALSE}
+library(readr)
+meth_data <- read_csv("Downloads/Stats101B_Dataset - Sheet1.csv")
+```
+
+```{r}
+meth_data
+```
+
+
+## 2.
+
+```{r}
+s1 <- meth_data$Score1
+s2 <- meth_data$Score2
+t.test(s1, s2, paired = TRUE, alternative = "two.sided")
+
+ggplot(meth_data, aes(x=Score2-Score1)) + geom_histogram(binwidth=1, color = "black", fill = "blue")
+``` 
+Ho: True mean difference is equal to 0
+Ha: True mean difference is not equal to 0
+
+Since the p-value(0.4201) is greater than 0.05, we fail to reject the null hypothesis.
+
+## 3.
+```{r}
+ggplot(meth_data, aes(x=Sex, y=Score2)) + geom_boxplot()
+```
+## 4.
+
+```{r}
+aggregate(data = meth_data, Score2~Sex, var)
+
+var.test(data=meth_data, Score2~Sex)
+```
+From the var test we can conclude that there isn't a difference between the Female and Male variances.
+
+## 5.
+
+```{r}
+t.test(Score2~Sex, data = meth_data, var.equal = TRUE)
+```
+
+Since our p-value is greater than 0.05, we fail to reject the null that the true difference in means between Females and Males is greater than 0.
+
+# Q2
+
+## a.
+
+H0 = mean breaking strength = 150
+HA = mean breaking strength <= 150
+
+## b.
+
+```{r}
+y <- c(145, 153, 150, 147)
+
+(mean(y) - 150)/(2/2)
+
+pnorm(-1.25, lower.tail = TRUE)
+```
+
+Since the p-value is greater than 0.05, we fail to reject the null hypothesis.
+
+## c.
+
+0.1056498
+
+## d. 
+
+```{r}
+mean(y) + c(-1, 1) * (1.96 * 2)/2
+
+mean(y)
+```
+CI = 146.79 to 150.71
+
+(mean of y is within this confidence interval, so makes sense that we failed to reject the null)
+
+# Q3
+
+## a.
+
+```{r}
+values <-  c(65, 81, 57, 66, 82, 82, 67, 59, 75, 70, 64, 71, 83, 59, 65, 56, 69, 74, 82, 79)
+type <- c("type1", "type1", "type1", "type1", "type1", "type1", "type1", "type1", "type1", "type1", "type2", "type2", "type2", "type2", "type2", "type2", "type2", "type2", "type2", "type2")
+
+q3_df <- data.frame(values, type)
+
+aggregate(values~type, data = q3_df, var)
+
+var.test(values~type, data = q3_df, alternative = "two.sided")
+```
+
+Since the p value is greater than 0.05, we fail to reject the null that the two variances are equal. (So we can say the varainces are equal)
+
+## b.
+
+```{r}
+t.test(values~type, data = q3_df, var.equal = TRUE)
+```
+Since our p value is greater than 0.05, we fail to reject the null that different between the means is equal to 0.
+
+# c.
+
+```{r}
+library(ggplot2)
+
+ggplot(q3_df, aes(type, values)) + geom_boxplot()
+```
+Looking at the boxplots, Type 1 and Type 2 seem to violate the normality assumption
+
+# Q4
+
+```{r}
+anova_table <- matrix(ncol = 5, nrow = 3)
+
+colnames(anova_table) <- c('DF', 'SS', 'MS', 'F', 'P')
+rownames(anova_table) <- c('Factor', 'Error', 'Total')
+
+anova_table[1, 1] <- 3
+anova_table[1, 2] <- 36.15
+anova_table[3, 1] <- 19
+anova_table[3, 2] <- 196.04
+
+anova_table[2, 1] <- anova_table[3, 1] - anova_table[1, 1]
+anova_table[2, 2] <- anova_table[3, 2] - anova_table[1, 2]
+
+anova_table[1, 3] <- anova_table[1, 2]/anova_table[1, 1]
+anova_table[2, 3] <- anova_table[2, 2]/anova_table[2, 1]
+
+anova_table[1, 4] <- anova_table[1, 3]/anova_table[2, 3]
+
+anova_table[1, 5] <- pf(anova_table[1, 4], 3, 16, lower.tail=FALSE)
+
+anova_table
+```
+
